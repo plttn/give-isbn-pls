@@ -28,11 +28,13 @@ def get_book_info(data):
 	bookXML = requests.get(urlToHit)
 	dictOfXML = xmltodict.parse(bookXML.text)
 	items = dictOfXML["book"]["items"]["item"]
+	title = dictOfXML["book"]["title"]
+	return items, title
 
-	return items
 
-def message_generator(vendorList):
-	messageBP = "The best price overall is {oPrice}, it is {oPType}. Best Price link: {oPLink}. The best new price is {nPrice} @ {nPLink}, the best used price is {uPrice} @ {uPLink}, the best rental price is {rPrice} @ {rPLink}. All best price calculations include shipping."
+
+def message_generator(vendorList, title):
+	messageBP = "Title: {bTitle} The best price overall is {oPrice}, it is {oPType}. Best Price link: {oPLink}. The best new price is {nPrice} @ {nPLink}, the best used price is {uPrice} @ {uPLink}, the best rental price is {rPrice} @ {rPLink}. All best price calculations include shipping."
 
 	#add shipping to price to calculate
 	for item in vendorList:
@@ -93,7 +95,7 @@ def message_generator(vendorList):
 			pass
 		pass
 
-	DMText = messageBP.format(oPrice=oLowestObj['price'],oPType=oLowestObj['condition'], oPLink=oLowestObj['url'], nPrice=nLowestObj['price'],  nPLink=nLowestObj['url'],uPrice=uLowestObj['price'], uPLink=uLowestObj['url'],rPrice=rLowestObj['price'], rPLink=rLowestObj['url'])
+	DMText = messageBP.format(oPrice=oLowestObj['price'],oPType=oLowestObj['condition'], oPLink=oLowestObj['url'], nPrice=nLowestObj['price'],  nPLink=nLowestObj['url'],uPrice=uLowestObj['price'], uPLink=uLowestObj['url'],rPrice=rLowestObj['price'], rPLink=rLowestObj['url'], bTitle=title)
 
 	return DMText
 
@@ -113,9 +115,8 @@ class listener(StreamListener):
 		if dataObj['direct_message']['recipient_id_str']== "730138485999304706":
 			print requesterId
 			print "grabbing book info"
-			bookData = get_book_info(EANnum)
-			responseDM = message_generator(bookData)
-			print responseDM
+			bookData, bookTitle = get_book_info(EANnum)
+			responseDM = message_generator(bookData,bookTitle)
 			responseAPI.send_direct_message(user_id=requesterId, text=str(responseDM))
 			pass
 
