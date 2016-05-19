@@ -137,5 +137,5 @@ class listener(StreamListener):
 
 
 streamInstance = Stream(oauth, listener()) #sets up listener
+print "listening"
 streamInstance.userstream()
-print "waiting for user input"
